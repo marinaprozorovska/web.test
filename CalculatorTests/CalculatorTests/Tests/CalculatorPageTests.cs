@@ -223,5 +223,45 @@ namespace CalculatorTests.Tests
             Assert.AreEqual(endDate, endDateField.GetAttribute("value"));
         }
 
+        [TestCase("1", "1", "1", "10", "March", "2020", "0.00", "1.00", "11/03/2020")]
+        [TestCase("100", "10", "15", "12", "July", "2022", "0.42", "100.42", "27/07/2022")]
+        [TestCase("50000", "50", "300", "25", "August", "2021", "20,833.33", "70,833.33", "21/06/2022")]
+        [TestCase("99999", "99", "360", "30", "September", "2012", "98,999.01", "198,998.01", "25/09/2013")]
+        [TestCase("100000", "100", "365", "20", "September", "2029", "101,388.89", "201,388.89", "20/09/2030")]
+        public void PositiveInput360daysTests(string depositAmount, string rateOfInterest, string investmentTerm, string startDay, string startMonth, string startYear, string interestEarned, string income, string endDate)
+        {
+            //arrange
+            IWebElement depositAmountField = driver.FindElement(By.Id("amount"));
+            IWebElement rateOfInterestField = driver.FindElement(By.Id("percent"));
+            IWebElement investmentTermField = driver.FindElement(By.Id("term"));
+            IWebElement startDayField = driver.FindElement(By.Id("day"));
+            IWebElement startMonthField = driver.FindElement(By.Id("month"));
+            IWebElement startYearField = driver.FindElement(By.Id("year"));
+            IWebElement financialYear = driver.FindElement(By.Id("finYear"));
+            IWebElement financialYearButton365 = financialYear.FindElements(By.TagName("input"))[1];
+            IWebElement calculateButton = driver.FindElement(By.Id("calculateBtn"));
+            IWebElement interestEarnedField = driver.FindElement(By.Id("interest"));
+            IWebElement incomeField = driver.FindElement(By.Id("income"));
+            IWebElement endDateField = driver.FindElement(By.Id("endDate"));
+
+            //act
+            depositAmountField.SendKeys(depositAmount);
+            rateOfInterestField.SendKeys(rateOfInterest);
+            investmentTermField.SendKeys(investmentTerm);
+            startDayField.SendKeys(startDay);
+            startMonthField.SendKeys(startMonth);
+            startYearField.SendKeys(startYear);
+            financialYearButton365.Click();
+            calculateButton.Click();
+            new WebDriverWait(driver, TimeSpan.FromSeconds(20))
+            .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
+
+
+            //assert
+            Assert.AreEqual(interestEarned, interestEarnedField.GetAttribute("value"));
+            Assert.AreEqual(income, incomeField.GetAttribute("value"));
+            Assert.AreEqual(endDate, endDateField.GetAttribute("value"));
+        }
+
     }
 }
