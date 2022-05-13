@@ -13,6 +13,7 @@
     <None Remove="NUnit3TestAdapter" />
     <None Remove="Microsoft.NET.Test.Sdk" />
     <None Remove="DotNetSeleniumExtras.WaitHelpers" />
+    <None Remove="Selenium.Support" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tests\" />
@@ -24,5 +25,6 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
+    <PackageReference Include="Selenium.Support" Version="4.1.1" />
   </ItemGroup>
 </Project>
