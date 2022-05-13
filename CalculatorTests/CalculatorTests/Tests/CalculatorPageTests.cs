@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
+
 
 namespace CalculatorTests.Tests
 {
@@ -19,7 +21,7 @@ namespace CalculatorTests.Tests
             driver.Url = "https://localhost:5001/Calculator";
         }
 
-       [TearDown]
+        [TearDown]
         public void TearDown()
         {
             driver.Quit();
@@ -29,8 +31,7 @@ namespace CalculatorTests.Tests
         public void DepositAmountFieldBugTest()
         {
             //arrange
-            IWebElement depositAmountFields = driver.FindElements(By.TagName("tr"))[0];
-            IWebElement depositAmountField = depositAmountFields.FindElements(By.TagName("td"))[0];
+            IWebElement depositAmountField = driver.FindElement(By.XPath("//td [text() = 'Deposit Amount: *']"));
 
             //assert
             Assert.AreEqual("Deposit Amount: *", depositAmountField.Text);
@@ -41,11 +42,10 @@ namespace CalculatorTests.Tests
         public void InterestEarnedOutputBugTest()
         {
             //arrange
-            IWebElement interestEarnedOutputs = driver.FindElements(By.TagName("tr"))[6];
-            IWebElement interestEarnedOutput = interestEarnedOutputs.FindElements(By.TagName("th"))[0];
+            IWebElement interestEarnedOutput = driver.FindElement(By.XPath("//th [text() = 'Interest Earned: *']"));
 
             //assert
-            Assert.AreEqual("Interest Earned: *	", interestEarnedOutput.Text);
+            Assert.AreEqual("Interest Earned: *", interestEarnedOutput.Text);
 
         }
 
@@ -53,8 +53,7 @@ namespace CalculatorTests.Tests
         public void IncomeOutputBugTest()
         {
             //arrange
-            IWebElement incomeOutputs = driver.FindElements(By.TagName("tr"))[7];
-            IWebElement incomeOutput = incomeOutputs.FindElements(By.TagName("th"))[0];
+            IWebElement incomeOutput = driver.FindElement(By.XPath("//th [text() = 'Income: *']"));
 
             //assert
             Assert.AreEqual("Income: *", incomeOutput.Text);
@@ -66,16 +65,32 @@ namespace CalculatorTests.Tests
         {
             //arrange
             IWebElement monthDropdown = driver.FindElement(By.Id("month"));
-            IWebElement months = driver.FindElement(By.Id("month"));
 
             //act
             monthDropdown.Click();
             new WebDriverWait(driver, TimeSpan.FromSeconds(10))
             .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("month")));
-            IWebElement aprilMonth = months.FindElements(By.TagName("option"))[3];
+            IWebElement aprilMonth = monthDropdown.FindElements(By.TagName("option"))[3];
 
             //assert
             Assert.AreEqual("April", aprilMonth.Text);
+        }
+
+        [Test]
+        public void OrderOfMonth()
+        {
+            List<string> expectedMonths = new List<string> { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+            List<string> actualMonths = new List<string>();
+            IWebElement startMonthField = driver.FindElement(By.Id("month"));
+            
+
+            SelectElement startMonthDropdown = new SelectElement(startMonthField);
+            foreach (IWebElement element in startMonthDropdown.Options)
+            {
+                actualMonths.Add(element.Text);
+            }
+            Assert.AreEqual(expectedMonths, actualMonths);
+           //* Assert.AreEqual(12, startMonthDropdown.Options.Count);
         }
 
 
@@ -123,8 +138,7 @@ namespace CalculatorTests.Tests
             IWebElement startDayField = driver.FindElement(By.Id("day"));
             IWebElement startMonthField = driver.FindElement(By.Id("month"));
             IWebElement startYearField = driver.FindElement(By.Id("year"));
-            IWebElement financialYear = driver.FindElement(By.Id("finYear"));
-            IWebElement financialYearButton365 = financialYear.FindElements(By.TagName("td"))[1];
+            IWebElement financialYearButton365 = driver.FindElement(By.XPath("//tr[@id = 'finYear']/td[text() = '365 days']/*"));
             IWebElement calculateButton = driver.FindElement(By.Id("calculateBtn"));
             IWebElement interestEarnedField = driver.FindElement(By.Id("interest"));
             IWebElement incomeField = driver.FindElement(By.Id("income"));
@@ -134,10 +148,15 @@ namespace CalculatorTests.Tests
             depositAmountField.SendKeys("100000");
             rateOfInterestField.SendKeys("100");
             investmentTermField.SendKeys("365");
-            startDayField.SendKeys("1");
-            startMonthField.SendKeys("January");
-            startYearField.SendKeys("2022");
+            SelectElement startDayDropdown = new SelectElement(startDayField);
+            startDayDropdown.SelectByText("1");
+            SelectElement startMonthDropdown = new SelectElement(startMonthField);
+            startMonthDropdown.SelectByText("January");
+            SelectElement startYearDropdown = new SelectElement(startYearField);
+            startYearDropdown.SelectByText("2022");
             financialYearButton365.Click();
+            new WebDriverWait(driver, TimeSpan.FromSeconds(20))
+           .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
             calculateButton.Click();
             new WebDriverWait(driver, TimeSpan.FromSeconds(20))
             .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
@@ -147,6 +166,33 @@ namespace CalculatorTests.Tests
             Assert.AreEqual("200,000.00", incomeField.GetAttribute("value"));
             Assert.AreEqual("01/01/2023", endDateField.GetAttribute("value"));
         }
+
+        /* [Test]
+          public void OrderOfDays()
+          {
+              List<string> expectedMonths = new List<string>();
+              List<string> actualMonths = new List<string>();
+              IWebElement startMonthField = driver.FindElement(By.Id("day"));
+              SelectElement startMonthDropdown = new SelectElement(startMonthField);
+
+              for (int i = 1; i < 30; i++)
+              {
+                  expectedMonths.Add(i.ToString());
+              }
+
+              foreach (IWebElement element in startMonthDropdown.Options)
+              {
+                  actualMonths.Add(element.Text);
+              }
+              Assert.AreEqual(expectedMonths, actualMonths);
+          }
+
+          string readOnly = startMonthField.GetAttribute("readOnly");
+
+          Assert.AreEqual("true", readOnly);
+
+         */
+
 
 
         [TestCase("aaaa", "aaaa", "aaaa")]
@@ -159,13 +205,13 @@ namespace CalculatorTests.Tests
         [TestCase("0", "20", "30")]
         [TestCase("10", "0", "30")]
         [TestCase("10", "20", "0")]
-        [TestCase("100005", "20", "30")]
+        [TestCase("100001", "20", "30")]
         [TestCase("100", "101", "30")]
-        [TestCase("100", "99", "367")]
+        [TestCase("100", "99", "366")]
         public void NegativeInputTests(string depositAmount, string rateOfInterest, string investmentTerm)
         {
             //arrange
-            IWebElement depositAmountField = driver.FindElement(By.Id("amount"));
+            IWebElement depositAmountField = driver.FindElement(By.XPath("//tr[contains( string(), 'Deposit Amount' )]//input"));
             IWebElement rateOfInterestField = driver.FindElement(By.Id("percent"));
             IWebElement investmentTermField = driver.FindElement(By.Id("term"));
             IWebElement financialYear = driver.FindElement(By.Id("finYear"));
@@ -198,7 +244,7 @@ namespace CalculatorTests.Tests
             IWebElement startMonthField = driver.FindElement(By.Id("month"));
             IWebElement startYearField = driver.FindElement(By.Id("year"));
             IWebElement financialYear = driver.FindElement(By.Id("finYear"));
-            IWebElement financialYearButton365 = financialYear.FindElements(By.TagName("input"))[0];
+            IWebElement financialYearButton365 = financialYear.FindElement(By.XPath("//tr[@id = 'finYear']/td[text() = '365 days']/*"));
             IWebElement calculateButton = driver.FindElement(By.Id("calculateBtn"));
             IWebElement interestEarnedField = driver.FindElement(By.Id("interest"));
             IWebElement incomeField = driver.FindElement(By.Id("income"));
@@ -208,14 +254,18 @@ namespace CalculatorTests.Tests
             depositAmountField.SendKeys(depositAmount);
             rateOfInterestField.SendKeys(rateOfInterest);
             investmentTermField.SendKeys(investmentTerm);
-            startDayField.SendKeys(startDay);
-            startMonthField.SendKeys(startMonth);
-            startYearField.SendKeys(startYear);
+            SelectElement startDayDropdown = new SelectElement(startDayField);
+            startDayDropdown.SelectByText(startDay);
+            SelectElement startMonthDropdown = new SelectElement(startMonthField);
+            startMonthDropdown.SelectByText(startMonth);
+            SelectElement startYearDropdown = new SelectElement(startYearField);
+            startYearDropdown.SelectByText(startYear);
             financialYearButton365.Click();
+            new WebDriverWait(driver, TimeSpan.FromSeconds(20))
+            .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
             calculateButton.Click();
             new WebDriverWait(driver, TimeSpan.FromSeconds(20))
             .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
-
 
             //assert
             Assert.AreEqual(interestEarned, interestEarnedField.GetAttribute("value"));
@@ -238,7 +288,7 @@ namespace CalculatorTests.Tests
             IWebElement startMonthField = driver.FindElement(By.Id("month"));
             IWebElement startYearField = driver.FindElement(By.Id("year"));
             IWebElement financialYear = driver.FindElement(By.Id("finYear"));
-            IWebElement financialYearButton365 = financialYear.FindElements(By.TagName("input"))[1];
+            IWebElement financialYearButton360 = financialYear.FindElement(By.XPath("//tr[@id = 'finYear']/td[text() = '360 days']/*"));
             IWebElement calculateButton = driver.FindElement(By.Id("calculateBtn"));
             IWebElement interestEarnedField = driver.FindElement(By.Id("interest"));
             IWebElement incomeField = driver.FindElement(By.Id("income"));
@@ -248,10 +298,13 @@ namespace CalculatorTests.Tests
             depositAmountField.SendKeys(depositAmount);
             rateOfInterestField.SendKeys(rateOfInterest);
             investmentTermField.SendKeys(investmentTerm);
-            startDayField.SendKeys(startDay);
-            startMonthField.SendKeys(startMonth);
-            startYearField.SendKeys(startYear);
-            financialYearButton365.Click();
+            SelectElement startDayDropdown = new SelectElement(startDayField);
+            startDayDropdown.SelectByText(startDay);
+            SelectElement startMonthDropdown = new SelectElement(startMonthField);
+            startMonthDropdown.SelectByText(startMonth);
+            SelectElement startYearDropdown = new SelectElement(startYearField);
+            startYearDropdown.SelectByText(startYear);
+            financialYearButton360.Click();
             calculateButton.Click();
             new WebDriverWait(driver, TimeSpan.FromSeconds(20))
             .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
