@@ -5,7 +5,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 
-namespace CalculatorTests
+namespace CalculatorTests.Tests
 {
     [TestFixture]
     public class SettingsPageTests

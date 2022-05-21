@@ -21,6 +21,33 @@ namespace CalculatorTests.Tests
             driver.Url = "https://localhost:5001/Calculator";
         }
 
+
+        [OneTimeSetUp]
+        public void OneTimeSetUP()
+        {
+            var options = new ChromeOptions { AcceptInsecureCertificates = true };
+            driver = new ChromeDriver(options);
+            driver.Url = "https://localhost:5001/Settings";
+
+            IWebElement dateFormatField = driver.FindElement(By.Id("dateFormat"));
+            IWebElement numberFormatField = driver.FindElement(By.Id("numberFormat"));
+            IWebElement defaultCurrencyField = driver.FindElement(By.Id("currency"));
+            IWebElement saveButton = driver.FindElement(By.Id("save"));
+            SelectElement dateFormatDropdown = new SelectElement(dateFormatField);
+            SelectElement numberFormatDropdown = new SelectElement(numberFormatField);
+            SelectElement defaultCurrencyDropdown = new SelectElement(defaultCurrencyField);
+
+            dateFormatDropdown.SelectByText("dd/MM/yyyy");
+            numberFormatDropdown.SelectByText("123,456,789.00");
+            defaultCurrencyDropdown.SelectByText("$ - US dollar");
+            saveButton.Click();
+            System.Threading.Thread.Sleep(2000);
+            IAlert alert = driver.SwitchTo().Alert();
+            alert.Accept();
+
+            driver.Quit();
+        }
+
         [TearDown]
         public void TearDown()
         {
