@@ -18,15 +18,13 @@ namespace CalculatorTests.Tests
         {
             var options = new ChromeOptions { AcceptInsecureCertificates = true };
             driver = new ChromeDriver(options);
+            SetSettingsToDefault();
             driver.Url = "https://localhost:5001/Calculator";
         }
 
 
-        [OneTimeSetUp]
-        public void OneTimeSetUP()
+        public void SetSettingsToDefault()
         {
-            var options = new ChromeOptions { AcceptInsecureCertificates = true };
-            driver = new ChromeDriver(options);
             driver.Url = "https://localhost:5001/Settings";
 
             IWebElement dateFormatField = driver.FindElement(By.Id("dateFormat"));
@@ -44,8 +42,6 @@ namespace CalculatorTests.Tests
             System.Threading.Thread.Sleep(2000);
             IAlert alert = driver.SwitchTo().Alert();
             alert.Accept();
-
-            driver.Quit();
         }
 
         [TearDown]
