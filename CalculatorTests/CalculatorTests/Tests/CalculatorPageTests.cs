@@ -35,6 +35,8 @@ namespace CalculatorTests.Tests
             SelectElement numberFormatDropdown = new SelectElement(numberFormatField);
             SelectElement defaultCurrencyDropdown = new SelectElement(defaultCurrencyField);
 
+            new WebDriverWait(driver, TimeSpan.FromSeconds(200))
+             .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("save")));
             dateFormatDropdown.SelectByText("dd/MM/yyyy");
             numberFormatDropdown.SelectByText("123,456,789.00");
             defaultCurrencyDropdown.SelectByText("$ - US dollar");
