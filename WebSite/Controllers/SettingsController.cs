@@ -38,8 +38,7 @@ namespace WebSite.Controllers
         [HttpPost("save")]
         public IActionResult Save([FromBody] SettingsDto dto)
         {
-            // Settings are not saved
-            // Settings.Save(dto);
+            Settings.Save(dto);
             return Ok();
         }
 

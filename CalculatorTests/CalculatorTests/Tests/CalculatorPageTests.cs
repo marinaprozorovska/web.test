@@ -4,7 +4,7 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
-
+using SeleniumExtras.WaitHelpers;
 
 namespace CalculatorTests.Tests
 {
@@ -21,6 +21,35 @@ namespace CalculatorTests.Tests
             driver.Url = "https://localhost:5001/Calculator";
         }
 
+        [OneTimeSetUp]
+        public void SetSettingsToDefault()
+        {
+            var options = new ChromeOptions { AcceptInsecureCertificates = true };
+            driver = new ChromeDriver(options);
+            driver.Url = "https://localhost:5001/Settings";
+
+            IWebElement dateFormatField = driver.FindElement(By.Id("dateFormat"));
+            IWebElement numberFormatField = driver.FindElement(By.Id("numberFormat"));
+            IWebElement defaultCurrencyField = driver.FindElement(By.Id("currency"));
+            IWebElement saveButton = driver.FindElement(By.Id("save"));
+            SelectElement dateFormatDropdown = new SelectElement(dateFormatField);
+            SelectElement numberFormatDropdown = new SelectElement(numberFormatField);
+            SelectElement defaultCurrencyDropdown = new SelectElement(defaultCurrencyField);
+
+            new WebDriverWait(driver, TimeSpan.FromSeconds(10))
+                .Until(ExpectedConditions.ElementExists(By.XPath("//*[@id = 'dateFormat']/option")));
+
+            dateFormatDropdown.SelectByText("dd/MM/yyyy");
+            numberFormatDropdown.SelectByText("123,456,789.00");
+            defaultCurrencyDropdown.SelectByText("$ - US dollar");
+            saveButton.Click();
+            new WebDriverWait(driver, TimeSpan.FromSeconds(10))
+                .Until(ExpectedConditions.AlertIsPresent());
+            IAlert alert = driver.SwitchTo().Alert();
+            alert.Accept();
+            driver.Quit();
+        }
+
         [TearDown]
         public void TearDown()
         {
@@ -35,7 +64,6 @@ namespace CalculatorTests.Tests
 
             //assert
             Assert.AreEqual("Deposit Amount: *", depositAmountField.Text);
-
         }
 
         [Test]
@@ -46,7 +74,6 @@ namespace CalculatorTests.Tests
 
             //assert
             Assert.AreEqual("Interest Earned: *", interestEarnedOutput.Text);
-
         }
 
         [Test]
@@ -69,7 +96,7 @@ namespace CalculatorTests.Tests
             //act
             monthDropdown.Click();
             new WebDriverWait(driver, TimeSpan.FromSeconds(10))
-            .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("month")));
+                .Until(ExpectedConditions.ElementIsVisible(By.Id("month")));
             IWebElement aprilMonth = monthDropdown.FindElements(By.TagName("option"))[3];
 
             //assert
@@ -88,7 +115,7 @@ namespace CalculatorTests.Tests
                 actualMonths.Add(element.Text);
             }
             Assert.AreEqual(expectedMonths, actualMonths);
-           //* Assert.AreEqual(12, startMonthDropdown.Options.Count);
+            //* Assert.AreEqual(12, startMonthDropdown.Options.Count);
         }
 
         [Test]
@@ -101,7 +128,7 @@ namespace CalculatorTests.Tests
             //act
             monthDropdown.Click();
             new WebDriverWait(driver, TimeSpan.FromSeconds(10))
-            .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.Id("month")));
+                .Until(ExpectedConditions.ElementIsVisible(By.Id("month")));
 
             //assert
             Assert.AreEqual("June", juneMonth.Text);
@@ -152,10 +179,10 @@ namespace CalculatorTests.Tests
             startYearDropdown.SelectByText("2022");
             financialYearButton365.Click();
             new WebDriverWait(driver, TimeSpan.FromSeconds(20))
-           .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
+                .Until(ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
             calculateButton.Click();
             new WebDriverWait(driver, TimeSpan.FromSeconds(20))
-           .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
+                .Until(ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
 
             //assert
             Assert.AreEqual("100,000.00", interestEarnedField.GetAttribute("value"));
@@ -255,10 +282,10 @@ namespace CalculatorTests.Tests
             startYearDropdown.SelectByText(startYear);
             financialYearButton365.Click();
             new WebDriverWait(driver, TimeSpan.FromSeconds(20))
-            .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
+                .Until(ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
             calculateButton.Click();
             new WebDriverWait(driver, TimeSpan.FromSeconds(20))
-            .Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
+                .Until(ExpectedConditions.ElementToBeClickable(By.Id("calculateBtn")));
 
             //assert
             Assert.AreEqual(interestEarned, interestEarnedField.GetAttribute("value"));
